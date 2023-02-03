@@ -27,25 +27,24 @@ import com.moladin.compose.data.Database
 import com.moladin.compose.ui.screen.EditScreen
 import com.moladin.compose.ui.theme.MoladinJetpackComposeTheme
 
-const val SAVE_CODE = 1000
-class EditActivity : ComponentActivity() {
+
+class InsertActivity : ComponentActivity() {
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val carId = intent.getIntExtra("car_id", 0)
-        val imageUrl = intent.getStringExtra("img_url")
+        val currentIndex = Database.sources.size
+
         setContent {
             MoladinJetpackComposeTheme {
 
-                val carEntity = Database.Instance.getCarById(carId)
                 var carName by remember { mutableStateOf(TextFieldValue("")) }
 
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
-                                Text(text = "CAR ID: $carId")
+                                Text(text = "Create New Car")
                             },
                             navigationIcon = {
                                 IconButton(onClick = {
@@ -63,57 +62,28 @@ class EditActivity : ComponentActivity() {
                             .padding(horizontal = 16.dp, vertical = 24.dp)
                     ) {
                         EditScreen(
-                            placeholder = carEntity?.name.orEmpty(),
+                            placeholder = "",
                             value = carName,
                             onValueChange = {
                                 carName = it
                             })
-
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            onClick = {
+                                insert(currentIndex + 1, carName.text,"https://loremflickr.com/320/240/cars,sport")
+                                setResult(SAVE_CODE)
+                                finish()
+                            }
                         ) {
-                            Button(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .padding(horizontal = 5.dp),
-                                onClick = {
-                                    delete(carId)
-                                    setResult(SAVE_CODE)
-                                    finish()
-                                }) {
-                                Text(text = "Delete")
-                            }
-                            Button(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .padding(horizontal = 5.dp),
-                                onClick = {
-                                    if (imageUrl != null) {
-                                        update(carId, carName.text,imageUrl)
-                                    }
-                                    setResult(SAVE_CODE)
-                                    finish()
-                                }) {
-                                Text(text = "Save")
-                            }
+                            Text(text = "Save")
                         }
-
                     }
                 }
             }
         }
     }
-
-    private fun update(carId: Int, newCarName: String, imageUrl: String) {
-        if (newCarName.isNotEmpty()) {
-            Database.Instance.update(CarEntity(carId, newCarName,imageUrl))
-        }
-    }
-    private fun delete(carId: Int){
-        Database.Instance.delete(carId)
+    private fun insert(carId: Int, carName: String, imageUrl: String) {
+        Database.Instance.insert(CarEntity(carId, carName,imageUrl))
     }
 }

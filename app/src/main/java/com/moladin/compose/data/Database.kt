@@ -7,14 +7,17 @@ class Database private constructor() {
             Database()
         }
 
-        private val sources by lazy {
+        val sources by lazy {
             carPrefilled
         }
     }
 
     fun insert(carEntity: CarEntity) {
-        //TODO: task 1 - implement insert here
-        // do not perform insert when carId already exist in database (array)
+        val existingData = sources.find { it.name == carEntity.name }
+        val currentIndex = sources.size
+        if (existingData == null) {
+            sources.add(CarEntity(carId = carEntity.carId, name = carEntity.name, imageUrl = carEntity.imageUrl))
+        }
     }
 
     fun update(carEntity: CarEntity) {
@@ -26,9 +29,9 @@ class Database private constructor() {
     }
 
     fun delete(carId: Int) {
-        //TODO: task 2
-        // remove car entity by id
-
+        val toDelete = sources.find { it.carId == carId }
+        val index = sources.indexOf(toDelete)
+        sources.removeAt(index)
     }
 
     fun getCarById(carId: Int) = sources.find { it.carId == carId }
